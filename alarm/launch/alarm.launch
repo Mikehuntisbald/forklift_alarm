@@ -1,0 +1,14 @@
+<launch>
+    <!-- 启动rug -->
+    <node name="urg" pkg="urg_node" type="urg_node" output="screen" />
+    
+    <!-- 启动动态重配置GUI -->
+    <node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" />
+
+    <!-- 启动你的节点 -->
+    <node name="alarm_node" pkg="alarm" type="alarm_node.py" output="screen" />
+    
+    <!-- 启动 RViz 并加载配置文件 -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find alarm)/rviz.rviz" output="screen" />
+</launch>
+
