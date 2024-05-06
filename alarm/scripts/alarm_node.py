@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 import rospy
+import os
+from time import sleep
+#sudo chown root:root alarm_node.py 
+#sudo chmod u+s alarm_node.py
+import RPi.GPIO as GPIO
+from time import sleep
 from sensor_msgs.msg import LaserScan, PointCloud
 from geometry_msgs.msg import Point32
 import math
@@ -18,6 +24,13 @@ ALARM_BOUNDARY_TOPIC = '/alarm_boundary'  # Topic name for the boundary of the a
 # Initialize Publishers
 pointcloud_pub = rospy.Publisher(ALARM_POINTCLOUD_TOPIC, PointCloud, queue_size=10)
 boundary_pub = rospy.Publisher(ALARM_BOUNDARY_TOPIC, PointCloud, queue_size=10)
+
+# GPIO BCM
+GPIO.setmode(GPIO.BCM)
+
+# GPIO outputmode
+led_pin = 17  # 以 GPIO18 为例
+GPIO.setup(led_pin, GPIO.OUT)
 
 def publish_alarm_boundary():
     """Publish the boundary points of the alarm area"""
@@ -103,9 +116,17 @@ def process_scan(msg):
     if alarm_triggered:
         pointcloud_pub.publish(cloud)
         rospy.loginfo("Alarm! Obstacle detected and pointcloud published.")
+        GPIO.output(led_pin, GPIO.HIGH)
+        #os.system('sudo python3 on.py')
     else:
         rospy.loginfo("No Obstacle. All clear.")
-
+        GPIO.output(led_pin, GPIO.LOW)
+        #os.system('sudo python3 off.py')
+        
+def hook():
+    GPIO.output(led_pin, GPIO.LOW)
+    GPIO.cleanup()
+    
 def alarm_node():
     """Main function to initialize the node"""
     rospy.init_node('obstacle_alarm_node')
@@ -115,6 +136,8 @@ def alarm_node():
     
     rospy.Subscriber("/scan", LaserScan, process_scan)
 
+    rospy.on_shutdown(hook)
+
     rospy.spin()
 
 if __name__ == '__main__':
@@ -122,4 +145,9 @@ if __name__ == '__main__':
         alarm_node()
     except rospy.ROSInterruptException:
         pass
+    except KeyboardInterrupt:
+        GPIO.cleanup()
+        pass
+    finally:
+        GPIO.cleanup()
 
