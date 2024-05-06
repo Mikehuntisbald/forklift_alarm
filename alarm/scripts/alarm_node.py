@@ -29,8 +29,10 @@ boundary_pub = rospy.Publisher(ALARM_BOUNDARY_TOPIC, PointCloud, queue_size=10)
 GPIO.setmode(GPIO.BCM)
 
 # GPIO outputmode
-led_pin = 17  # 以 GPIO18 为例
+led_pin = 17
+led_pin1 = 27
 GPIO.setup(led_pin, GPIO.OUT)
+GPIO.setup(led_pin1, GPIO.OUT)
 
 def publish_alarm_boundary():
     """Publish the boundary points of the alarm area"""
@@ -117,14 +119,20 @@ def process_scan(msg):
         pointcloud_pub.publish(cloud)
         rospy.loginfo("Alarm! Obstacle detected and pointcloud published.")
         GPIO.output(led_pin, GPIO.HIGH)
+        GPIO.output(led_pin1, GPIO.HIGH)
+
         #os.system('sudo python3 on.py')
     else:
         rospy.loginfo("No Obstacle. All clear.")
         GPIO.output(led_pin, GPIO.LOW)
+        GPIO.output(led_pin1, GPIO.LOW)
+
         #os.system('sudo python3 off.py')
         
 def hook():
     GPIO.output(led_pin, GPIO.LOW)
+    GPIO.output(led_pin1, GPIO.LOW)
+
     GPIO.cleanup()
     
 def alarm_node():
