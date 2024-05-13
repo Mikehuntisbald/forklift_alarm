@@ -16,6 +16,11 @@ from alarm.cfg import ObstacleDetectionConfig
 # Offsets
 X_OFFSET = 0.5  # X offset in meters
 Y_OFFSET = 0.2  # Y offset in meters
+
+WARNING_ZONE_FRONT_LAT = 0.3  # Lateral ±30cm
+WARNING_ZONE_FRONT_LONG = 0.4  # Longitudinal 40cm
+WARNING_ZONE_FRONT_LONG_INIT = 0.4
+
 ALARM_ZONE_FRONT_LAT = 0.3  # Lateral ±30cm
 ALARM_ZONE_FRONT_LONG = 0.4  # Longitudinal 40cm
 ALARM_ZONE_FRONT_LONG_INIT = 0.4
@@ -45,13 +50,13 @@ def publish_alarm_boundary():
     num_points_per_side = 20  # Number of points per side
     num_points_per_side_lr = 80
     points = []
-
+    points_warning = []
     # Left and right sides with offsets
     for i in range(num_points_per_side_lr + 1):
         x = i * (4 * ALARM_ZONE_FRONT_LONG - ALARM_ZONE_FRONT_LONG_INIT) / num_points_per_side_lr + ALARM_ZONE_FRONT_LONG_INIT + X_OFFSET
         points.append(Point32(x, -ALARM_ZONE_FRONT_LAT + Y_OFFSET, 0))
         points.append(Point32(x, ALARM_ZONE_FRONT_LAT + Y_OFFSET, 0))
-
+        
     # Top and bottom sides with offsets
     for i in range(1, num_points_per_side):
         y = i * 2 * ALARM_ZONE_FRONT_LAT / num_points_per_side - ALARM_ZONE_FRONT_LAT + Y_OFFSET
